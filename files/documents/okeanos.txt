@@ -23,3 +23,4 @@ git lfs install
 git lfs track "Crime_Data_from_2010_to_2019.csv"
 git lfs push --all origin main
 git add .
+git push -u origin main
