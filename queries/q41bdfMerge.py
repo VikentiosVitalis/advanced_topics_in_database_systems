@@ -30,28 +30,26 @@ def haversine(lat1, lon1, lat2, lon2):
 
 get_distance_udf = udf(haversine, FloatType())
 
-
 crime_data = crime_data.withColumn('DATE OCC', to_date('DATE OCC', 'MM/dd/yyyy hh:mm:ss a'))
 crime_data = crime_data.withColumn('Year', year('DATE OCC'))
 
-firearm_crimes = crime_data.filter(crime_data['Weapon Used Cd'].between(100, 199))
+weapon_crimes = crime_data.filter(crime_data['Weapon Used Cd'].isNotNull())
 
-firearm_crimes = firearm_crimes.join(
-    police_stations.hint("shuffle_hash"), 
-    upper(firearm_crimes['AREA NAME']) == police_stations['DIVISION'], 
-    'left_outer'
-)
+weapon_crimes = weapon_crimes.hint("merge")
+weapon_crimes = weapon_crimes.join(police_stations, upper(weapon_crimes['AREA NAME']) == police_stations['DIVISION'], 'left_outer')
 
-firearm_crimes = firearm_crimes.withColumn('Distance', get_distance_udf('LAT', 'LON', police_stations['Y'], police_stations['X']))
+weapon_crimes = weapon_crimes.withColumn('Distance', get_distance_udf(weapon_crimes['LAT'], weapon_crimes['LON'], police_stations['Y'], police_stations['X']))
 
-station_stats = firearm_crimes.groupBy('AREA NAME').agg(
+station_stats = weapon_crimes.groupBy('AREA NAME').agg(
     {'Distance': 'mean', 'DR_NO': 'count'}
 ).withColumnRenamed('avg(Distance)', 'Average_Distance')\
   .withColumnRenamed('count(DR_NO)', 'Count')\
-  .select('AREA NAME', format_number('Average_Distance', 3).alias('Average_Distance'), 'Count')\
+  .withColumnRenamed('AREA NAME', 'Division')\
+  .select('Division', format_number('Average_Distance', 3).alias('Average_Distance'), 'Count')\
   .orderBy('Count', ascending=False)
 
 station_stats.explain()
+
 station_stats.show(station_stats.count(), truncate=False)
 
 spark.stop()

@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import to_date, year, udf, col, format_number, upper
+from pyspark.sql.functions import to_date, udf, col, format_number, initcap
 from pyspark.sql.types import FloatType
 import math
 
@@ -19,8 +19,8 @@ crime_data = crime_data_2010_2019.union(crime_data_2020_present)
 
 def haversine(lat1, lon1, lat2, lon2):
     if None in [lat1, lon1, lat2, lon2]:
-        return None  
-    R = 6371 
+        return None
+    R = 6371
     dLat = math.radians(lat2 - lat1)
     dLon = math.radians(lon2 - lon1)
     a = math.sin(dLat/2) * math.sin(dLat/2) + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dLon/2) * math.sin(dLon/2)
@@ -31,26 +31,35 @@ def haversine(lat1, lon1, lat2, lon2):
 get_distance_udf = udf(haversine, FloatType())
 
 crime_data = crime_data.withColumn('DATE OCC', to_date('DATE OCC', 'MM/dd/yyyy hh:mm:ss a'))
-crime_data = crime_data.withColumn('Year', year('DATE OCC'))
+weapon_crimes = crime_data.filter(crime_data['Weapon Used Cd'].isNotNull())
 
-firearm_crimes = crime_data.filter(crime_data['Weapon Used Cd'].between(100, 199))
+local_police_stations = police_stations.collect()
 
-firearm_crimes = firearm_crimes.join(
-    police_stations.hint("shuffle_replicate_nl"), 
-    upper(firearm_crimes['AREA NAME']) == police_stations['DIVISION'], 
-    'left_outer'
-)
+def find_nearest_station(crime):
+    min_distance = float('inf')
+    nearest_station = None
+    for station in local_police_stations:
+        distance = haversine(crime['LAT'], crime['LON'], station['Y'], station['X'])
+        if distance is not None and distance < min_distance:
+            min_distance = distance
+            nearest_station = station['DIVISION']
+    return (crime['DR_NO'], nearest_station, min_distance)
 
-firearm_crimes = firearm_crimes.withColumn('Distance', get_distance_udf('LAT', 'LON', police_stations['Y'], police_stations['X']))
+nearest_stations_rdd = weapon_crimes.rdd.map(lambda crime: find_nearest_station(crime))
 
-station_stats = firearm_crimes.groupBy('AREA NAME').agg(
+columns = ['DR_NO', 'Division', 'Distance']
+nearest_stations_df = nearest_stations_rdd.toDF(columns)
+
+station_stats = nearest_stations_df.groupBy('Division').agg(
     {'Distance': 'mean', 'DR_NO': 'count'}
 ).withColumnRenamed('avg(Distance)', 'Average_Distance')\
-  .withColumnRenamed('count(DR_NO)', 'Count')\
-  .select('AREA NAME', format_number('Average_Distance', 3).alias('Average_Distance'), 'Count')\
-  .orderBy('Count', ascending=False)
+  .withColumnRenamed('count(DR_NO)', 'Count')
 
-station_stats.explain()
+station_stats = station_stats.withColumn('Division', initcap('Division'))
+station_stats = station_stats.select(
+    'Division', format_number('Average_Distance', 3).alias('Average_Distance'), 'Count'
+).orderBy('Count', ascending=False)
+
 station_stats.show(station_stats.count(), truncate=False)
 
 spark.stop()

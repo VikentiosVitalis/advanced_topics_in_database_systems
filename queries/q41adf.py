@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import to_date, year, udf, col
+from pyspark.sql.functions import to_date, year, udf, col, format_number
 from pyspark.sql.types import FloatType
 import pandas as pd
 import math
@@ -45,8 +45,9 @@ firearm_crimes = firearm_crimes.withColumn('Distance', get_distance_udf('LAT', '
 
 annual_stats = firearm_crimes.groupBy('Year').agg(
     {'Distance': 'mean', 'DR_NO': 'count'}
-).withColumnRenamed('avg(Distance)', 'Count')\
-  .withColumnRenamed('count(DR_NO)', 'Average_Distance')  
+).select(
+    "Year", format_number("avg(Distance)", 3).alias('Average_Distance'), "count(DR_NO)"
+).withColumnRenamed('count(DR_NO)', 'Count')
 
 annual_stats = annual_stats.orderBy('Year')
 

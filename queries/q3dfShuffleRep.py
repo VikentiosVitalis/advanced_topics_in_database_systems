@@ -49,6 +49,8 @@ selected_crimes = selected_crimes.withColumn('Vict Descent', descent_udf('Vict D
 
 victim_count_by_descent = selected_crimes.groupBy('Vict Descent').count().orderBy('count', ascending=False)
 
+victim_count_by_descent.explain()
+
 victim_count_by_descent.show()
 
 spark.stop()
