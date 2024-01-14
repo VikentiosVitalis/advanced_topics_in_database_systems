@@ -2,36 +2,47 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_date, col, split, udf, regexp_replace, year
 from pyspark.sql.types import StringType
 
+# Start Spark Session with 2 executors
 spark = SparkSession.builder \
     .appName("CrimeVictimAnalysis") \
     .config("spark.executor.instances", "2") \
     .getOrCreate()
 
+# Read the datasets from the HDFS service
 crime_data_path = 'hdfs://master:54310/datasets/Crime_Data_from_2010_to_2019.csv'
 income_data_path = 'hdfs://master:54310/datasets/income/LA_income_2015.csv'
 revgecoding_path = 'hdfs://master:54310/datasets/revgecoding.csv'
 
+# Read data into Spark dataframes
 crime_data = spark.read.csv(crime_data_path, header=True, inferSchema=True)
 revgecoding = spark.read.csv(revgecoding_path, header=True, inferSchema=True)
 income_data = spark.read.csv(income_data_path, header=True, inferSchema=True)
 
+# Clean income data
 income_data = income_data.withColumn('Estimated Median Income', regexp_replace('Estimated Median Income', '[\$,]', '').cast('float'))
 
+# Clean crime data and convert date
 crime_data = crime_data.withColumn('DATE OCC', to_date('DATE OCC', 'MM/dd/yyyy hh:mm:ss a'))
 
+# Filter crime data for 2015
 crime_2015 = crime_data.filter((year(col('DATE OCC')) == 2015) & (col('Vict Descent').isNotNull()))
 
+# Join crime data with reverse geocoding data using suffle replicate nl join
 crime_2015 = crime_2015.hint("shuffle_replicate_nl").join(revgecoding, ['LAT', 'LON'], 'left_outer')
 crime_2015 = crime_2015.withColumn('ZIPcode', split(col('ZIPcode'), ',').getItem(0))
 
+# Extract first part of zip code, select top and bottom 3 zip codes by income
 top_3_zip = income_data.orderBy('Estimated Median Income', ascending=False).limit(3)
 bottom_3_zip = income_data.orderBy('Estimated Median Income', ascending=True).limit(3)
 selected_zip_codes = top_3_zip.union(bottom_3_zip).select('Zip Code')
 
+# Filter crimes for selected zip codes
 selected_crimes = crime_2015.hint("shuffle_replicate_nl").join(selected_zip_codes, crime_2015.ZIPcode == selected_zip_codes['Zip Code'])
 
+# Physical Plan of execution plan
 selected_crimes.explain(True)
 
+# Define user defined function for descent mapping
 def descent_mapping(code):
     mapping = {
         'A': 'Other Asian', 'B': 'Black', 'C': 'Chinese', 'D': 'Cambodian',
@@ -45,12 +56,17 @@ def descent_mapping(code):
 
 descent_udf = udf(descent_mapping, StringType())
 
+# Apply udf to victim descent column
 selected_crimes = selected_crimes.withColumn('Vict Descent', descent_udf('Vict Descent'))
 
+# Group and count victimes by descent
 victim_count_by_descent = selected_crimes.groupBy('Vict Descent').count().orderBy('count', ascending=False)
 
+# Physical Plan of execution plan
 victim_count_by_descent.explain()
 
+# Show the resulting dataframe
 victim_count_by_descent.show()
 
+# Stop the Spark session
 spark.stop()
