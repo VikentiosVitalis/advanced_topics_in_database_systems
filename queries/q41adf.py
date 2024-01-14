@@ -4,7 +4,7 @@ from pyspark.sql.types import FloatType
 import pandas as pd
 import math
 
-# Start Spark Session 
+# Start Spark session 
 spark = SparkSession.builder \
     .appName("CrimeAnalysis") \
     .getOrCreate()
@@ -71,6 +71,6 @@ annual_stats = annual_stats.orderBy('Year')
 # Display the resulting dataframe
 annual_stats.show()
 
-# Stop Spark Session
+# Stop Spark session
 spark.stop()
 

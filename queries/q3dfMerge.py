@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_date, col, split, udf, regexp_replace, year
 from pyspark.sql.types import StringType
 
-# Start Spark Session with 2 executors
+# Start Spark session with 2 executors
 spark = SparkSession.builder \
     .appName("CrimeVictimAnalysis") \
     .config("spark.executor.instances", "2") \
@@ -21,7 +21,7 @@ income_data = spark.read.csv(income_data_path, header=True, inferSchema=True)
 # Clean income data
 income_data = income_data.withColumn('Estimated Median Income', regexp_replace('Estimated Median Income', '[\$,]', '').cast('float'))
 
-# Clean crime data and convert date
+# Transform the 'Estimated Median Income' column
 crime_data = crime_data.withColumn('DATE OCC', to_date('DATE OCC', 'MM/dd/yyyy hh:mm:ss a'))
 
 # Filter crime data for 2015
@@ -31,7 +31,7 @@ crime_2015 = crime_data.filter((year(col('DATE OCC')) == 2015) & (col('Vict Desc
 crime_2015 = crime_2015.hint("merge").join(revgecoding, ['LAT', 'LON'], 'left_outer')
 crime_2015 = crime_2015.withColumn('ZIPcode', split(col('ZIPcode'), ',').getItem(0))
 
-# Extract first part o zip code, select top and bottom 3 zip codes by income
+# Extract first part of zip code, select top and bottom 3 zip codes by income
 top_3_zip = income_data.orderBy('Estimated Median Income', ascending=False).limit(3)
 bottom_3_zip = income_data.orderBy('Estimated Median Income', ascending=True).limit(3)
 selected_zip_codes = top_3_zip.union(bottom_3_zip).select('Zip Code')
@@ -56,13 +56,13 @@ descent_udf = udf(descent_mapping, StringType())
 # Apply udf to victim descent column
 selected_crimes = selected_crimes.withColumn('Vict Descent', descent_udf('Vict Descent'))
 
-# Group and count victimes by descent
+# Group and count victims by descent
 victim_count_by_descent = selected_crimes.groupBy('Vict Descent').count().orderBy('count', ascending=False)
 
 # Physical Plan of execution plan
 victim_count_by_descent.explain()
 
-# Show the resulting dataframe
+# Display results
 victim_count_by_descent.show()
 
 # Stop the Spark session

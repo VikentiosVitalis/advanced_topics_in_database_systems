@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 from pyspark.sql.types import StringType
 
-# Start Spark Session with 4 executors
+# Start Spark session with 4 executors
 spark = SparkSession.builder \
     .appName("CrimeDataAnalysis") \
     .config("spark.executor.instances", "4") \
@@ -50,5 +50,5 @@ sorted_segment_crime_counts = segment_crime_counts.orderBy('Crime Count', ascend
 # Display reuslt
 sorted_segment_crime_counts.show()
 
-# Stop Spark Session
+# Stop Spark session
 spark.stop()

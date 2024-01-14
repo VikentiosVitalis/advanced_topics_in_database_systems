@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_timestamp
 
-# Start Spark Session with 4 executors
+# Start Spark session with 4 executors
 spark = SparkSession.builder \
     .appName("CrimeDataAnalysis") \
     .config("spark.executor.instances", "4") \
@@ -25,7 +25,7 @@ crime_data = crime_data.withColumn('DATE OCC', to_timestamp('DATE OCC', 'MM/dd/y
 crime_data.createOrReplaceTempView("crime_data")
 
 # Retrieve the top 3 months with the highest crime count 
-# for each year, showing Year, Month, Crime Count, and Rank
+# for each year, showing Year, Month, Crime Count and Rank
 query = """
 SELECT Year, Month, `Crime Count`, Rank
 FROM (
@@ -48,5 +48,5 @@ top_months = spark.sql(query)
 # Display result
 top_months.show(top_months.count(), truncate=False)
 
-# Stop Spark Session
+# Stop Spark session
 spark.stop()

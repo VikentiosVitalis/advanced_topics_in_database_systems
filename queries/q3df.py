@@ -18,10 +18,10 @@ crime_data = spark.read.csv(crime_data_path, header=True, inferSchema=True)
 revgecoding = spark.read.csv(revgecoding_path, header=True, inferSchema=True)
 income_data = spark.read.csv(income_data_path, header=True, inferSchema=True)
 
-# Clean income data
+# Transform the 'Estimated Median Income' column
 income_data = income_data.withColumn('Estimated Median Income', regexp_replace('Estimated Median Income', '[\$,]', '').cast('float'))
 
-# Clean crime data and convert date
+# Convert date
 crime_data = crime_data.withColumn('DATE OCC', to_date('DATE OCC', 'MM/dd/yyyy hh:mm:ss a'))
 
 # Filter crime data for 2015
@@ -53,13 +53,13 @@ def descent_mapping(code):
 
 descent_udf = udf(descent_mapping, StringType())
 
-# Apply udf to victim descent column
+# Apply user defined function to victim descent column
 selected_crimes = selected_crimes.withColumn('Vict Descent', descent_udf('Vict Descent'))
 
 # Group and count victims by descent
 victim_count_by_descent = selected_crimes.groupBy('Vict Descent').count().orderBy('count', ascending=False)
 
-# Show the resulting dataframe
+# Display results
 victim_count_by_descent.show()
 
 # Stop the Spark session

@@ -3,7 +3,7 @@ from pyspark.sql.functions import to_date, udf, col, format_number, initcap
 from pyspark.sql.types import FloatType
 import math
 
-# Start Spark Session 
+# Start Spark session 
 spark = SparkSession.builder \
     .appName("CrimeAnalysis") \
     .getOrCreate()
@@ -61,7 +61,7 @@ nearest_stations_rdd = weapon_crimes.rdd.map(lambda crime: find_nearest_station(
 columns = ['DR_NO', 'Division', 'Distance']
 nearest_stations_df = nearest_stations_rdd.toDF(columns)
 
-# Group, sum nearest stations dataframe, column renaming
+# Group, sum nearest stations dataframe and column rename
 station_stats = nearest_stations_df.groupBy('Division').agg(
     {'Distance': 'mean', 'DR_NO': 'count'}
 ).withColumnRenamed('avg(Distance)', 'Average_Distance')\
@@ -76,5 +76,5 @@ station_stats = station_stats.select(
 # Display results
 station_stats.show(station_stats.count(), truncate=False)
 
-# Stop Spark Session
+# Stop Spark session
 spark.stop()

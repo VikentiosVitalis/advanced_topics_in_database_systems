@@ -73,7 +73,7 @@ annual_stats = annual_stats.orderBy('Year')
 # Display the results
 annual_stats.show()
 
-# Stop Spark Session
+# Stop Spark session
 spark.stop()
 
 

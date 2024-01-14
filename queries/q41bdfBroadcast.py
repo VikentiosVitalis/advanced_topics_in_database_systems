@@ -4,7 +4,7 @@ from pyspark.sql.types import FloatType
 import math
 from pyspark.sql.functions import broadcast
 
-# Start Spark Session 
+# Start Spark session 
 spark = SparkSession.builder \
     .appName("CrimeAnalysis") \
     .getOrCreate()
@@ -19,7 +19,7 @@ crime_data_2010_2019 = spark.read.csv(crime_data_path_2010_2019, header=True, in
 crime_data_2020_present = spark.read.csv(crime_data_path_2020_present, header=True, inferSchema=True)
 police_stations = spark.read.csv(police_stations_path, header=True, inferSchema=True)
 
-# Union of the the dataframes to one
+# Union of the dataframes to one
 crime_data = crime_data_2010_2019.union(crime_data_2020_present)
 
 # Haversine function for the calculation of distance between 
@@ -53,7 +53,7 @@ weapon_crimes.explain()
 # Calculate distance
 weapon_crimes = weapon_crimes.withColumn('Distance', get_distance_udf(weapon_crimes['LAT'], weapon_crimes['LON'], police_stations['Y'], police_stations['X']))
 
-# Group, summ, column rename, select columns
+# Group, summ, rename and select columns
 station_stats = weapon_crimes.groupBy('AREA NAME').agg(
     {'Distance': 'mean', 'DR_NO': 'count'}
 ).withColumnRenamed('avg(Distance)', 'Average_Distance')\
@@ -68,5 +68,5 @@ station_stats.explain()
 # Display the results
 station_stats.show(station_stats.count(), truncate=False)
 
-# Stop Spark Session
+# Stop Spark session
 spark.stop()

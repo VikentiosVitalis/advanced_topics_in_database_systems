@@ -3,7 +3,7 @@ from pyspark.sql.functions import col, year, month, desc, to_timestamp
 from pyspark.sql.window import Window
 import pyspark.sql.functions as F
 
-# Start Spark Session with 4 executors
+# Start Spark session with 4 executors
 spark = SparkSession.builder \
     .appName("CrimeDataAnalysis") \
     .config("spark.executor.instances", "4") \
@@ -40,5 +40,5 @@ top_months = grouped_data.withColumn('Rank', F.rank().over(windowSpec)) \
 # Display the result 
 top_months.show(top_months.count(), truncate=False)
 
-# Stop the Spark Session
+# Stop the Spark session
 spark.stop()

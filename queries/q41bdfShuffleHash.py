@@ -50,7 +50,7 @@ weapon_crimes = weapon_crimes.join(police_stations, upper(weapon_crimes['AREA NA
 # Calculate distance
 weapon_crimes = weapon_crimes.withColumn('Distance', get_distance_udf(weapon_crimes['LAT'], weapon_crimes['LON'], police_stations['Y'], police_stations['X']))
 
-# Group, summ, column rename, select columns
+# Group, summ, rename and select columns
 station_stats = weapon_crimes.groupBy('AREA NAME').agg(
     {'Distance': 'mean', 'DR_NO': 'count'}
 ).withColumnRenamed('avg(Distance)', 'Average_Distance')\
@@ -65,5 +65,5 @@ station_stats.explain()
 # Display the results
 station_stats.show(station_stats.count(), truncate=False)
 
-# Stop Spark Session
+# Stop Spark session
 spark.stop()

@@ -3,7 +3,7 @@ from pyspark.sql.functions import to_date, year, udf, col, format_number, upper
 from pyspark.sql.types import FloatType
 import math
 
-# Start Spark Session 
+# Start Spark session 
 spark = SparkSession.builder \
     .appName("CrimeAnalysis") \
     .getOrCreate()

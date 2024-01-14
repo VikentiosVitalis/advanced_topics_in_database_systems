@@ -53,6 +53,6 @@ sorted_segment_crime_counts = segment_crime_counts.sortBy(lambda x: x[1], ascend
 for segment, count in sorted_segment_crime_counts.collect():
     print(f"{segment}: {count}")
 
-# Stop Spark Session
+# Stop Spark session
 spark.stop()
  

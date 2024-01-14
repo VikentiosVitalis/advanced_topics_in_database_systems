@@ -11,7 +11,7 @@ file_path = 'hdfs://master:54310/datasets/Crime_Data_from_2010_to_2019.csv'
 # Dataframe with csv the columns and data types
 df = spark.read.csv(file_path, header=True, inferSchema=True)
 
-# Data type casting in the new Dataframe
+# Data type casting in the new dataframe
 df = df.withColumn("Date Rptd", col("Date Rptd").cast(DateType()))
 df = df.withColumn("DATE OCC", col("DATE OCC").cast(DateType()))
 df = df.withColumn("Vict Age", col("Vict Age").cast(IntegerType()))
@@ -24,5 +24,5 @@ df.printSchema()
 # Print the number of rows in the dataframe
 print("Total Number of Rows:", df.count())
 
-# Stop the Spark Session 
+# Stop the Spark session 
 spark.stop()
