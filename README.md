@@ -4,7 +4,18 @@
   <img src="/files/photos/atds.png" alt="ATDS's Custom Image" width="270" height="200" />
 </p>
 
-## Contributors
+## Data Science Project ATDS
+This project focuses on data analysis using Apache Hadoop and Apache Spark. The goal is to familiarize working with distributed systems and modern data science techniques. The project utilizes large datasets related to crime data in Los Angeles.
+
+### Tools Used
+[Apache Hadoop 3.3.6](https://hadoop.apache.org/) 
+
+[Apache Spark 3.5.0](https://spark.apache.org/)
+
+### Environment Setup
+The project uses virtual machines from the public cloud [~Okeanos-knossos](https://okeanos-knossos.grnet.gr/home/). Detailed instructions for setting up the working environment and installing all the needed software are provided in the 'files/documents/setup.pdf'.
+
+### Contributors
 <p align="center">
     <a href="https://github.com/VikentiosVitalis">
       <img src="/files/photos/vikentios.png" width="10%">
