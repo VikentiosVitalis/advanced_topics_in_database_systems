@@ -4,7 +4,7 @@
   <img src="/files/photos/atds.png" alt="ATDS's Custom Image" width="270" height="200" />
 </p>
 
-### Data Science Project ATDS
+### Data Science Project
 This project focuses on data analysis using Apache Hadoop and Apache Spark. 
 
 The goal is to familiarize working with distributed systems and modern data science techniques. 
