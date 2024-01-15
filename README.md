@@ -15,19 +15,19 @@ The project utilizes large datasets related to crime data in Los Angeles.
 - [Apache Hadoop 3.3.6](https://hadoop.apache.org/) 
 The Apache Hadoop project develops open-source software for reliable, scalable, distributed computing.
 
-1. Distributed processing of large datasets across clusters of computers using simple programming models.
+Distributed processing of large datasets across clusters of computers using simple programming models.
 
 - [Apache Spark 3.5.0](https://spark.apache.org/)
 
 Apache Spark is a multi-language engine for executing data engineering, data science, and machine learning on single-node machines or clusters.
 
-1. Batch/streaming data
+Batch/streaming data
 
-2. SQL analytics
+SQL analytics
 
-3. Data science at scale
+Data science at scale
 
-4. Machine learning
+Machine learning
 
 - [~Okeanos-knossos](https://okeanos-knossos.grnet.gr/home/)
 
