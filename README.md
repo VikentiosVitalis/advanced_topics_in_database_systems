@@ -12,16 +12,31 @@ The goal is to familiarize working with distributed systems and modern data scie
 The project utilizes large datasets related to crime data in Los Angeles.
 
 ### Tools Used
-[Apache Hadoop 3.3.6](https://hadoop.apache.org/) 
+- [Apache Hadoop 3.3.6](https://hadoop.apache.org/) 
+The Apache Hadoop project develops open-source software for reliable, scalable, distributed computing.
 
-[Apache Spark 3.5.0](https://spark.apache.org/)
+> Distributed processing of large datasets across clusters of computers using simple programming models.
 
-### Environment Setup & Results
-The project uses virtual machines from the public cloud [~Okeanos-knossos](https://okeanos-knossos.grnet.gr/home/). 
+- [Apache Spark 3.5.0](https://spark.apache.org/)
 
-Detailed instructions for setting up the working environment and installing all the needed software are provided in the path: 'files/documents/setup.pdf'.
+Apache Spark is a multi-language engine for executing data engineering, data science, and machine learning on single-node machines or clusters.
 
-A detailed report with the execution and the results is also available in the 'files/documents' folder.
+> Batch/streaming data
+
+> SQL analytics
+
+> Data science at scale
+
+> Machine learning
+
+- [~Okeanos-knossos](https://okeanos-knossos.grnet.gr/home/)
+
+The project uses virtual machines from the public cloud `~Okeanos-knossos`.
+
+A detailed `setup` guide for the installation of the tools used is available in the `files/documents` folder.
+
+### Results
+A detailed report with the execution and the interpretation of queries is also available in the `files/documents` folder.
 
 ### Contributors
 <p align="center">
